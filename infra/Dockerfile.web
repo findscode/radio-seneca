@@ -1,0 +1,29 @@
+FROM node:22-alpine AS build
+WORKDIR /app
+
+ARG VITE_AZURACAST_URL=https://demo.azuracast.com
+ARG VITE_STATION_ID=1
+ARG VITE_STRAPI_URL=http://localhost:1337
+
+ENV VITE_AZURACAST_URL=$VITE_AZURACAST_URL
+ENV VITE_STATION_ID=$VITE_STATION_ID
+ENV VITE_STRAPI_URL=$VITE_STRAPI_URL
+
+COPY package.json package-lock.json* ./
+COPY packages/shared ./packages/shared
+COPY apps/web ./apps/web
+
+RUN npm install --workspace=@radio-seneca/web --workspace=@radio-seneca/shared \
+  && npm run build --workspace=@radio-seneca/shared \
+  && npm run build --workspace=@radio-seneca/web
+
+FROM nginx:1.27-alpine
+RUN apk add --no-cache gettext
+COPY infra/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY infra/nginx-entrypoint.sh /docker-entrypoint.d/40-envsubst.sh
+RUN chmod +x /docker-entrypoint.d/40-envsubst.sh
+COPY --from=build /app/apps/web/dist /usr/share/nginx/html
+ENV AZURACAST_UPSTREAM=https://demo.azuracast.com
+ENV STRAPI_UPSTREAM=http://strapi:1337
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

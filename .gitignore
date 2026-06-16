@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.cache/
+.tmp/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+apps/cms/.tmp/
+apps/cms/public/uploads/
+apps/cms/.strapi/
+coverage/

@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-strapi}
+      POSTGRES_USER: ${POSTGRES_USER:-strapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strapi}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-strapi} -d ${POSTGRES_DB:-strapi}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  strapi:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.cms
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-strapi}
+      DATABASE_USERNAME: ${POSTGRES_USER:-strapi}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-strapi}
+      DATABASE_SSL: "false"
+      HOST: 0.0.0.0
+      PORT: 1337
+      APP_KEYS: ${APP_KEYS:-toBeModified1,toBeModified2}
+      API_TOKEN_SALT: ${API_TOKEN_SALT:-tobemodified}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-tobemodified}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT:-tobemodified}
+      JWT_SECRET: ${JWT_SECRET:-tobemodified}
+    ports:
+      - "1337:1337"
+    volumes:
+      - ../apps/cms:/app/apps/cms
+      - cms_uploads:/app/apps/cms/public/uploads
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+      args:
+        VITE_AZURACAST_URL: ${VITE_AZURACAST_URL:-https://demo.azuracast.com}
+        VITE_STATION_ID: ${VITE_STATION_ID:-1}
+        VITE_STRAPI_URL: ${VITE_STRAPI_URL:-http://localhost:1337}
+    restart: unless-stopped
+    depends_on:
+      - strapi
+    environment:
+      AZURACAST_UPSTREAM: ${AZURACAST_UPSTREAM:-https://demo.azuracast.com}
+      STRAPI_UPSTREAM: http://strapi:1337
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:
+  cms_uploads:

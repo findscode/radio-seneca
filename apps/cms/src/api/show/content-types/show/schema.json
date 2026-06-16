@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "shows",
+  "info": {
+    "singularName": "show",
+    "pluralName": "shows",
+    "displayName": "Show",
+    "description": "Radio show or program"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "cover": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "color": {
+      "type": "string",
+      "default": "#6366f1"
+    },
+    "isLiveShow": {
+      "type": "boolean",
+      "default": false
+    },
+    "schedule_slots": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::schedule-slot.schedule-slot",
+      "mappedBy": "show"
+    }
+  }
+}

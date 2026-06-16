@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "schedule_slots",
+  "info": {
+    "singularName": "schedule-slot",
+    "pluralName": "schedule-slots",
+    "displayName": "Schedule Slot",
+    "description": "Weekly time slot for a show"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "dayOfWeek": {
+      "type": "enumeration",
+      "enum": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+      ],
+      "required": true
+    },
+    "startTime": {
+      "type": "time",
+      "required": true
+    },
+    "endTime": {
+      "type": "time",
+      "required": true
+    },
+    "hostName": {
+      "type": "string",
+      "required": true
+    },
+    "show": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::show.show",
+      "inversedBy": "schedule_slots"
+    }
+  }
+}

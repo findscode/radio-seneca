@@ -1,0 +1,19 @@
+{
+  "name": "radio-seneca",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@radio-seneca/web",
+    "dev:web": "npm run dev --workspace=@radio-seneca/web",
+    "dev:cms": "npm run develop --workspace=@radio-seneca/cms",
+    "build": "npm run build --workspace=@radio-seneca/shared && npm run build --workspace=@radio-seneca/web",
+    "build:web": "npm run build --workspace=@radio-seneca/web",
+    "build:cms": "npm run build --workspace=@radio-seneca/cms"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
