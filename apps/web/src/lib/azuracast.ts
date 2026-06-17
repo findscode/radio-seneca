@@ -39,12 +39,23 @@ export function getNowPlayingRestUrl(): string {
   return `${getAzuraBaseUrl()}/api/nowplaying/${getStationId()}`;
 }
 
-export function getNowPlayingSseUrl(): string {
-  if (useSameOriginProxy || import.meta.env.DEV) {
-    return `/api/live/nowplaying/sse`;
+export function getNowPlayingSseUrl(stationShortcode?: string): string {
+  const base =
+    useSameOriginProxy || import.meta.env.DEV
+      ? `/api/live/nowplaying/sse`
+      : `${getAzuraBaseUrl()}/api/live/nowplaying/sse`;
+
+  if (!stationShortcode) {
+    return base;
   }
 
-  return `${getAzuraBaseUrl()}/api/live/nowplaying/sse`;
+  const cfConnect = JSON.stringify({
+    subs: {
+      [`station:${stationShortcode}`]: { recover: true },
+    },
+  });
+
+  return `${base}?${new URLSearchParams({ cf_connect: cfConnect }).toString()}`;
 }
 
 export function getProxiedNowPlayingRestUrl(): string {

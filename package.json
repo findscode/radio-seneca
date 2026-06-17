@@ -9,6 +9,8 @@
     "dev": "npm run dev --workspace=@radio-seneca/web",
     "dev:web": "npm run dev --workspace=@radio-seneca/web",
     "dev:cms": "npm run develop --workspace=@radio-seneca/cms",
+    "dev:cms:local": "npm run develop:local --workspace=@radio-seneca/cms",
+    "test:web": "npm run test --workspace=@radio-seneca/web",
     "build": "npm run build --workspace=@radio-seneca/shared && npm run build --workspace=@radio-seneca/web",
     "build:web": "npm run build --workspace=@radio-seneca/web",
     "build:cms": "npm run build --workspace=@radio-seneca/cms"

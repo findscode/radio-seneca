@@ -19,33 +19,36 @@ export function AudioPlayer() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !streamUrl) return;
 
     if (isPlaying) {
       const playPromise = audio.play();
       if (playPromise) {
         playPromise.catch(() => {
-          setError('Unable to start playback. Tap play to retry.');
+          setError('Playback failed');
           setPlaying(false);
         });
       }
     } else {
       audio.pause();
     }
-  }, [isPlaying, setError, setPlaying]);
+  }, [isPlaying, streamUrl, setError, setPlaying]);
+
+  if (!streamUrl) {
+    return null;
+  }
 
   return (
     <audio
       ref={audioRef}
       src={streamUrl}
       preload="none"
-      crossOrigin="anonymous"
       onPlaying={() => {
         setError(null);
         setPlaying(true);
       }}
       onPause={() => setPlaying(false)}
-      onError={() => setError('Stream is currently unavailable.')}
+      onError={() => setError('Stream unavailable')}
     />
   );
 }

@@ -2,6 +2,8 @@
 
 Internet radio web application: **AzuraCast** (broadcasting) + **Strapi** (schedule CMS) + **React** (listener UI).
 
+AzuraCast is an external service — it is not bundled in this repo. For local development the web app uses [demo.azuracast.com](https://demo.azuracast.com) by default.
+
 ## Architecture
 
 - **AzuraCast** — audio stream, AutoDJ, live DJs, Now Playing metadata (SSE)
@@ -41,20 +43,24 @@ cp apps/web/.env.example apps/web/.env
 npm run dev:web
 ```
 
-Open http://localhost:5173
+Open http://localhost:5175
 
-### Run Strapi CMS
+> **Note:** The web dev server runs on port **5175** (not 5173). Strapi's admin HMR WebSocket uses port 5173 in development.
+
+### Run Strapi CMS (SQLite, no Docker)
 
 ```bash
-cd apps/cms
-npm run develop
+cp apps/cms/.env.example apps/cms/.env
+npm run dev:cms:local
 ```
 
 Admin panel: http://localhost:1337/admin
 
-On first bootstrap, Radio Seneca seeds a weekly schedule and enables public read permissions for schedule APIs.
+On first bootstrap, Strapi enables public read permissions for schedule APIs. Add shows and slots in the admin panel.
 
 ### Run full stack with Docker
+
+Requires Docker for PostgreSQL + Strapi + web:
 
 ```bash
 cp infra/.env.example infra/.env
@@ -74,10 +80,11 @@ docker compose up --build
 | `VITE_AZURACAST_URL` | AzuraCast base URL | `https://demo.azuracast.com` |
 | `VITE_STATION_ID` | Station ID | `1` |
 | `VITE_STRAPI_URL` | Strapi API URL (dev) | `http://localhost:1337` |
+| `DATABASE_CLIENT` | Strapi DB (`sqlite` or `postgres`) | `sqlite` for local |
 | `AZURACAST_UPSTREAM` | nginx proxy target (prod) | — |
 | `STRAPI_UPSTREAM` | nginx Strapi upstream (prod) | `http://strapi:1337` |
 
-In production builds, the web app uses same-origin `/api/*` routes proxied by nginx (no CORS issues with AzuraCast SSE).
+In production builds, the web app uses same-origin proxied routes for AzuraCast (`/api/live`, `/api/nowplaying`, `/listen`, `/radio`) and Strapi (`/api/*`) — no CORS issues.
 
 ## DigitalOcean deployment
 
@@ -128,15 +135,18 @@ docker compose up -d --build
 
 ## Development notes
 
-- Vite dev server proxies `/api/live` and `/api/nowplaying` to AzuraCast.
+- Vite dev server (port **5175**) proxies AzuraCast routes: `/api/live`, `/api/nowplaying`, `/listen`, `/radio`.
+- Audio streams use same-origin paths in dev to avoid CORS.
 - `ScheduleMatcher` links live DJs to schedule slots by `hostName` / `streamer_name`.
-- Strapi seeds 5 shows × 7 days on first run (empty database only).
+- Use `npm run dev:cms:local` for SQLite; use Docker Postgres for production-like CMS dev.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev:web` | Start React dev server |
-| `npm run dev:cms` | Start Strapi dev server |
+| `npm run dev:web` | Start React dev server (port 5175) |
+| `npm run dev:cms:local` | Start Strapi with SQLite |
+| `npm run dev:cms` | Start Strapi (uses `DATABASE_CLIENT` from `.env`) |
+| `npm run test:web` | Run web unit tests |
 | `npm run build` | Build shared + web |
 | `npm run build:cms` | Build Strapi admin |

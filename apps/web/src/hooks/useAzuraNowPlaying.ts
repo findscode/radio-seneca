@@ -1,5 +1,9 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { AzuraStationNowPlaying } from '@radio-seneca/shared';
+import {
+  extractNowPlayingFromSseMessage,
+  mergeNowPlaying,
+} from '../lib/azura-sse';
 import { getNowPlayingSseUrl, getProxiedNowPlayingRestUrl } from '../lib/azuracast';
 
 interface NowPlayingState {
@@ -17,6 +21,7 @@ let state: NowPlayingState = {
 const listeners = new Set<() => void>();
 let eventSource: EventSource | null = null;
 let subscriberCount = 0;
+let sseShortcode: string | undefined;
 
 function emit() {
   listeners.forEach((listener) => listener());
@@ -27,25 +32,6 @@ function setState(patch: Partial<NowPlayingState>) {
   emit();
 }
 
-function parseNowPlayingPayload(raw: string): AzuraStationNowPlaying | null {
-  try {
-    const json = JSON.parse(raw) as {
-      data?: AzuraStationNowPlaying | AzuraStationNowPlaying[];
-      pub?: { data?: AzuraStationNowPlaying };
-    };
-
-    if (json.pub?.data) return json.pub.data;
-    if (Array.isArray(json.data)) {
-      return json.data[0] ?? null;
-    }
-    if (json.data) return json.data;
-
-    return json as unknown as AzuraStationNowPlaying;
-  } catch {
-    return null;
-  }
-}
-
 async function fetchFallback(): Promise<AzuraStationNowPlaying | null> {
   const response = await fetch(getProxiedNowPlayingRestUrl());
   if (!response.ok) {
@@ -54,36 +40,83 @@ async function fetchFallback(): Promise<AzuraStationNowPlaying | null> {
   return (await response.json()) as AzuraStationNowPlaying;
 }
 
+function closeEventSource() {
+  eventSource?.close();
+  eventSource = null;
+}
+
+function openEventSource(stationShortcode?: string) {
+  if (stationShortcode) {
+    sseShortcode = stationShortcode;
+  }
+
+  closeEventSource();
+  eventSource = new EventSource(getNowPlayingSseUrl(sseShortcode));
+
+  eventSource.onopen = () => {
+    setState({ isConnected: true, error: null });
+  };
+
+  eventSource.onmessage = (event) => {
+    const parsed = extractNowPlayingFromSseMessage(event.data);
+    if (parsed) {
+      setState({
+        data: mergeNowPlaying(state.data, parsed),
+        error: null,
+        isConnected: true,
+      });
+    }
+  };
+
+  eventSource.onerror = async () => {
+    setState({ isConnected: false });
+
+    try {
+      const fallback = await fetchFallback();
+      if (fallback) {
+        setState({ data: fallback, error: null });
+        if (fallback.station.shortcode && fallback.station.shortcode !== sseShortcode) {
+          openEventSource(fallback.station.shortcode);
+        }
+      }
+    } catch (error) {
+      setState({
+        error: error instanceof Error ? error.message : 'Now Playing unavailable',
+      });
+    }
+  };
+}
+
+async function ensureBootstrap() {
+  if (state.data || state.error) {
+    if (state.data?.station.shortcode) {
+      openEventSource(state.data.station.shortcode);
+    } else {
+      openEventSource();
+    }
+    return;
+  }
+
+  try {
+    const fallback = await fetchFallback();
+    if (fallback) {
+      setState({ data: fallback, error: null });
+      openEventSource(fallback.station.shortcode);
+    }
+  } catch (error) {
+    setState({
+      error: error instanceof Error ? error.message : 'Now Playing unavailable',
+    });
+    openEventSource();
+  }
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   subscriberCount += 1;
 
   if (subscriberCount === 1) {
-    eventSource = new EventSource(getNowPlayingSseUrl());
-
-    eventSource.onopen = () => {
-      setState({ isConnected: true, error: null });
-    };
-
-    eventSource.onmessage = (event) => {
-      const parsed = parseNowPlayingPayload(event.data);
-      if (parsed) {
-        setState({ data: parsed, error: null, isConnected: true });
-      }
-    };
-
-    eventSource.onerror = async () => {
-      setState({ isConnected: false });
-
-      try {
-        const fallback = await fetchFallback();
-        setState({ data: fallback, error: null });
-      } catch (error) {
-        setState({
-          error: error instanceof Error ? error.message : 'Now Playing unavailable',
-        });
-      }
-    };
+    void ensureBootstrap();
   }
 
   return () => {
@@ -91,8 +124,8 @@ function subscribe(listener: () => void) {
     subscriberCount -= 1;
 
     if (subscriberCount === 0) {
-      eventSource?.close();
-      eventSource = null;
+      closeEventSource();
+      sseShortcode = undefined;
     }
   };
 }
@@ -102,21 +135,5 @@ function getSnapshot(): NowPlayingState {
 }
 
 export function useAzuraNowPlaying() {
-  const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    if (!snapshot.data && !snapshot.error) {
-      fetchFallback()
-        .then((data) => setState({ data, error: null }))
-        .catch((error) =>
-          setState({
-            error: error instanceof Error ? error.message : 'Now Playing unavailable',
-          }),
-        )
-        .finally(() => setTick((value) => value + 1));
-    }
-  }, [snapshot.data, snapshot.error]);
-
-  return snapshot;
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
