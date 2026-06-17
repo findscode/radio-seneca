@@ -13,12 +13,26 @@ export function getStationId(): string {
   return stationId;
 }
 
+function toProxiedAzuraPath(url: string): string {
+  try {
+    const parsed = new URL(url, getAzuraBaseUrl());
+    return `${parsed.pathname}${parsed.search}`;
+  } catch {
+    return url.startsWith('/') ? url : `/${url}`;
+  }
+}
+
 export function getStreamUrl(data?: AzuraStationNowPlaying | null): string {
-  if (data?.station?.listen_url) {
-    return data.station.listen_url;
+  const directUrl = data?.station?.listen_url;
+  if (!directUrl) {
+    return '';
   }
 
-  return `${getAzuraBaseUrl()}/radio/8000/stream`;
+  if (useSameOriginProxy || import.meta.env.DEV) {
+    return toProxiedAzuraPath(directUrl);
+  }
+
+  return directUrl;
 }
 
 export function getNowPlayingRestUrl(): string {
