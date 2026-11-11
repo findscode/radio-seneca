@@ -21,7 +21,11 @@
 ## Переменные сборки
 
 - Адрес радиосервера (для `nowplaying` и WebSocket).
-- `VITE_STREAM_URL` — адрес потока Icecast. Значение задаётся при сборке и в репозиторий не кладётся.
+- `VITE_STREAM_URL` — адрес потока Icecast.
+- `VITE_NOWPLAYING_URL` — адрес `nowplaying` этой станции.
+- `VITE_NOWPLAYING_WS_URL` — адрес WebSocket `nowplaying`.
+- `VITE_STATION_SHORTCODE` — короткий код станции.
+- Значения задаются при сборке и в репозиторий не кладутся.
 - Переменные Vite начинаются с `VITE_`.
 - Секреты в клиент не кладём. Клиент публичный.
 

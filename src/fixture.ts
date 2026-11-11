@@ -1,3 +1,5 @@
+import type { Broadcast } from "./nowPlaying";
+
 export type Track = {
   title: string;
   artist: string;
@@ -20,3 +22,20 @@ export const quote = "NOTHING IS OURS EXCEPT TIME.";
 
 export const listenersNow = 12;
 export const listeners24h = 184;
+
+export const fixtureBroadcast: Broadcast = {
+  current: {
+    id: "now",
+    title: nowPlaying.title,
+    artist: nowPlaying.artist,
+    art: null,
+  },
+  history: history.map((track, index) => ({
+    id: `fixture-${index}`,
+    title: track.title,
+    artist: track.artist,
+    art: null,
+  })),
+  listenersNow,
+  listeners24h,
+};

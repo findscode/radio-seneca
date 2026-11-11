@@ -1,17 +1,12 @@
-import { asciiField } from "./ascii";
-import {
-  history,
-  listeners24h,
-  listenersNow,
-  nowPlaying,
-  quote,
-} from "./fixture";
+import { useEffect, useState } from "react";
+import { AsciiField } from "./AsciiField";
+import { quote } from "./fixture";
+import { useBroadcast } from "./useBroadcast";
 import { streamUrl, usePlayer } from "./usePlayer";
-
-const pattern = asciiField();
 
 export function App() {
   const player = usePlayer();
+  const broadcast = useBroadcast();
 
   return (
     <div className="screen">
@@ -23,16 +18,12 @@ export function App() {
           </div>
           <p className="lang lang-mobile">RU / EN</p>
         </div>
-        <p className="mark" aria-hidden="true">
-          S
-        </p>
+        <CoverArt art={broadcast.current.art} />
         <p className="quote">{quote}</p>
       </aside>
 
       <main className="stage">
-        <pre className="ascii" aria-hidden="true">
-          {pattern}
-        </pre>
+        <AsciiField />
         <div className="stage-body">
           <header className="top">
             <p className="live">
@@ -42,15 +33,19 @@ export function App() {
             <div className="top-side">
               <p className="lang lang-desktop">RU / EN</p>
               <p className="stats">
-                NOW&nbsp;&nbsp;{listenersNow}
-                <br />
-                24H&nbsp;&nbsp;{listeners24h}
+                NOW&nbsp;&nbsp;{broadcast.listenersNow}
+                {broadcast.listeners24h !== null && (
+                  <>
+                    <br />
+                    24H&nbsp;&nbsp;{broadcast.listeners24h}
+                  </>
+                )}
               </p>
             </div>
           </header>
 
-          <h1 className="title">{nowPlaying.title}</h1>
-          <p className="artist">{nowPlaying.artist}</p>
+          <h1 className="title">{broadcast.current.title}</h1>
+          <p className="artist">{broadcast.current.artist}</p>
 
           <div className="controls">
             <button
@@ -97,11 +92,9 @@ export function App() {
           <section className="recent" aria-label="Recent">
             <h2>&gt; RECENT</h2>
             <ol>
-              {history.map((track) => (
-                <li key={track.title}>
-                  <span className="mini" aria-hidden="true">
-                    S
-                  </span>
+              {broadcast.history.map((track) => (
+                <li key={track.id}>
+                  <Thumb art={track.art} />
                   <span className="row-title">{track.title}</span>
                   <span className="row-artist">{track.artist}</span>
                 </li>
@@ -112,4 +105,41 @@ export function App() {
       </main>
     </div>
   );
+}
+
+function CoverArt({ art }: { art: string | null }) {
+  const failed = useFailedArt(art);
+  if (!art || failed.failed) {
+    return (
+      <p className="mark" aria-hidden="true">
+        S
+      </p>
+    );
+  }
+  return (
+    <img
+      className="cover-image"
+      src={art}
+      alt=""
+      onError={failed.fail}
+    />
+  );
+}
+
+function Thumb({ art }: { art: string | null }) {
+  const failed = useFailedArt(art);
+  if (!art || failed.failed) {
+    return (
+      <span className="mini" aria-hidden="true">
+        S
+      </span>
+    );
+  }
+  return <img className="mini-art" src={art} alt="" onError={failed.fail} />;
+}
+
+function useFailedArt(art: string | null) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [art]);
+  return { failed, fail: () => setFailed(true) };
 }

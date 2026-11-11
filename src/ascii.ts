@@ -1,12 +1,9 @@
-const COLS = 72;
-const ROWS = 42;
-
-export function asciiField(): string {
+export function asciiField(cols: number, rows: number): string {
   const lines: string[] = [];
 
-  for (let y = 0; y < ROWS; y += 1) {
+  for (let y = 0; y < rows; y += 1) {
     let line = "";
-    for (let x = 0; x < COLS; x += 1) {
+    for (let x = 0; x < cols; x += 1) {
       const slot = (x + 2 * y) % 10;
       if (slot === 0) line += "/";
       else if (slot === 3) line += "+";
