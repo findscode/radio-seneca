@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createField, speciesCounts, stepField } from "./ascii.ts";
+import { createField, glyphFrames, speciesCounts, stepField } from "./ascii.ts";
 import { languageFrom, textFor } from "./i18n.ts";
 import { quoteAt } from "./quotes.ts";
 import { retryDelayMs } from "./report.ts";
@@ -72,4 +72,22 @@ test("the field starts at random and keeps four symbols in motion", () => {
     assert.ok(live <= Math.floor(cols * rows * 0.28));
   }
   assert.equal(moved, true);
+});
+
+test("a symbol slides into the next cell and a new one fades in", () => {
+  const cols = 4;
+  const prev = new Uint8Array(cols * 3);
+  const next = new Uint8Array(cols * 3);
+  prev[1] = 1;
+  next[2] = 1;
+  next[cols + 1] = 2;
+  const frames = glyphFrames(prev, next, cols, 3);
+  const slide = frames.find((item) => item.species === 1);
+  const birth = frames.find((item) => item.species === 2);
+  assert.equal(slide?.fromCol, 1);
+  assert.equal(slide?.toCol, 2);
+  assert.equal(slide?.fromAlpha, 1);
+  assert.equal(slide?.toAlpha, 1);
+  assert.equal(birth?.fromAlpha, 0);
+  assert.equal(birth?.toAlpha, 1);
 });

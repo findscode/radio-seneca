@@ -156,3 +156,77 @@ function rarest(groups: number[][], random: () => number): number {
 function wrap(value: number, size: number): number {
   return (value + size) % size;
 }
+
+export type GlyphFrame = {
+  species: number;
+  fromCol: number;
+  fromRow: number;
+  toCol: number;
+  toRow: number;
+  fromAlpha: number;
+  toAlpha: number;
+};
+
+export function glyphFrames(
+  prev: Uint8Array,
+  next: Uint8Array,
+  cols: number,
+  rows: number,
+): GlyphFrame[] {
+  const frames: GlyphFrame[] = [];
+  const claimed = new Uint8Array(next.length);
+  const used = new Uint8Array(prev.length);
+
+  for (let index = 0; index < prev.length; index += 1) {
+    const species = prev[index];
+    if (species === 0 || next[index] !== species) continue;
+    claimed[index] = 1;
+    used[index] = 1;
+    const col = index % cols;
+    const row = (index - col) / cols;
+    frames.push(frame(species, col, row, col, row, 1, 1));
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const index = row * cols + col;
+      const species = prev[index];
+      if (species === 0 || used[index]) continue;
+      const [dx, dy] = DRIFT[species - 1];
+      const toCol = col + dx;
+      const toRow = row + dy;
+      if (toCol < 0 || toRow < 0 || toCol >= cols || toRow >= rows) continue;
+      const toIndex = toRow * cols + toCol;
+      if (claimed[toIndex] || next[toIndex] !== species) continue;
+      claimed[toIndex] = 1;
+      used[index] = 1;
+      frames.push(frame(species, col, row, toCol, toRow, 1, 1));
+    }
+  }
+
+  for (let index = 0; index < prev.length; index += 1) {
+    if (prev[index] === 0 || used[index]) continue;
+    const col = index % cols;
+    const row = (index - col) / cols;
+    frames.push(frame(prev[index], col, row, col, row, 1, 0));
+  }
+  for (let index = 0; index < next.length; index += 1) {
+    if (next[index] === 0 || claimed[index]) continue;
+    const col = index % cols;
+    const row = (index - col) / cols;
+    frames.push(frame(next[index], col, row, col, row, 0, 1));
+  }
+  return frames;
+}
+
+function frame(
+  species: number,
+  fromCol: number,
+  fromRow: number,
+  toCol: number,
+  toRow: number,
+  fromAlpha: number,
+  toAlpha: number,
+): GlyphFrame {
+  return { species, fromCol, fromRow, toCol, toRow, fromAlpha, toAlpha };
+}
