@@ -1,0 +1,411 @@
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/700.css";
+@import "@fontsource/caesar-dressing/400.css";
+
+:root {
+  --bg: #0e0e0e;
+  --text: #f2efe8;
+  --accent: #ffffff;
+  --muted: #8a8a8a;
+  --track: #404040;
+  --line: #333333;
+  --cover: #1e1e1e;
+  --history: #262626;
+  --ascii: #292929;
+  --font: "IBM Plex Mono", ui-monospace, monospace;
+  --logo: "Caesar Dressing", serif;
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--font);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  background: var(--bg);
+}
+
+button {
+  font-family: inherit;
+  border: 0;
+  padding: 0;
+  color: var(--bg);
+  background: var(--accent);
+  cursor: default;
+}
+
+p,
+h1,
+h2,
+ol {
+  margin: 0;
+}
+
+.screen {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(280px, 640px) minmax(0, 1fr);
+}
+
+.cover {
+  position: relative;
+  min-width: 0;
+  min-height: 100vh;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  background: var(--cover);
+  border-right: 2px solid var(--accent);
+}
+
+.cover-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.tick {
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin-bottom: 16px;
+  background: var(--accent);
+}
+
+.logo {
+  font-family: var(--logo);
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.mark {
+  margin: auto;
+  font-size: 280px;
+  line-height: 0.8;
+  color: var(--muted);
+  user-select: none;
+}
+
+.quote {
+  max-width: 100%;
+  font-size: 20px;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.lang {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.lang-mobile {
+  display: none;
+}
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.ascii {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ascii);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.15;
+  white-space: pre;
+  pointer-events: none;
+  user-select: none;
+}
+
+.stage-body {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 48px 48px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.top-side {
+  text-align: right;
+}
+
+.stats {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.title {
+  margin-top: 72px;
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.artist {
+  margin-top: 16px;
+  font-size: 28px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 36px;
+}
+
+.play {
+  width: 88px;
+  height: 88px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.volume {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.vol-label {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.vol-track {
+  flex: 1;
+  height: 2px;
+  background: var(--track);
+}
+
+.vol-fill {
+  display: block;
+  width: 57%;
+  height: 2px;
+  background: var(--accent);
+}
+
+.mute {
+  min-width: 72px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.rule {
+  margin: 40px 0 0;
+  border: 0;
+  border-top: 2px solid var(--line);
+}
+
+.recent {
+  margin-top: 28px;
+}
+
+.recent h2 {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.recent ol {
+  margin-top: 24px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.recent li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.mini {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: var(--history);
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.row-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.row-artist {
+  font-size: 14px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+@media (max-width: 800px) {
+  .screen {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cover,
+  .stage {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cover {
+    min-height: 480px;
+    padding: 20px;
+    border-right: 0;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .logo {
+    font-size: 22px;
+  }
+
+  .mark {
+    font-size: 180px;
+  }
+
+  .quote {
+    font-size: 14px;
+  }
+
+  .lang {
+    font-size: 12px;
+  }
+
+  .lang-mobile {
+    display: block;
+  }
+
+  .lang-desktop {
+    display: none;
+  }
+
+  .stage-body {
+    min-height: 0;
+    padding: 20px 20px 32px;
+  }
+
+  .live {
+    font-size: 12px;
+  }
+
+  .stats {
+    margin-top: 0;
+    font-size: 12px;
+  }
+
+  .title {
+    margin-top: 20px;
+    font-size: 28px;
+  }
+
+  .artist {
+    margin-top: 8px;
+    font-size: 18px;
+  }
+
+  .controls {
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .play {
+    width: 64px;
+    height: 64px;
+    font-size: 12px;
+  }
+
+  .mute {
+    min-width: 56px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .recent h2 {
+    font-size: 12px;
+  }
+
+  .recent li {
+    gap: 12px;
+  }
+
+  .row-title {
+    font-size: 14px;
+  }
+
+  .row-artist {
+    font-size: 12px;
+  }
+
+  .ascii {
+    font-size: 12px;
+  }
+}
