@@ -16,14 +16,17 @@
 - Хостинг: DigitalOcean Droplet (виртуальная машина).
 - Установка AzuraCast через Docker, по официальной инструкции проекта.
 - AzuraCast работает отдельно от клиента.
-- Поток Icecast и WebSocket отдаём по HTTPS через домен на этой машине.
+- Домен: `radio.seneca.by`. Запись A указывает на IP Droplet.
+- HTTPS: сертификат Let's Encrypt выдаёт AzuraCast. Продление идёт автоматически.
+- Основной адрес AzuraCast — `https://radio.seneca.by`.
+- Поток и WebSocket работают по HTTPS и WSS.
 
 ## Переменные сборки
 
 - Адрес радиосервера (для `nowplaying` и WebSocket).
-- `VITE_STREAM_URL` — адрес потока Icecast.
-- `VITE_NOWPLAYING_URL` — адрес `nowplaying` этой станции.
-- `VITE_NOWPLAYING_WS_URL` — адрес WebSocket `nowplaying`.
+- `VITE_STREAM_URL` — адрес потока Icecast: `https://radio.seneca.by/listen/seneca/radio.mp3`.
+- `VITE_NOWPLAYING_URL` — адрес `nowplaying`: `https://radio.seneca.by/api/nowplaying/seneca`.
+- `VITE_NOWPLAYING_WS_URL` — адрес WebSocket: `wss://radio.seneca.by/api/live/nowplaying/websocket`.
 - `VITE_STATION_SHORTCODE` — короткий код станции.
 - Значения задаются при сборке и в репозиторий не кладутся.
 - Переменные Vite начинаются с `VITE_`.
