@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { asciiField } from "./ascii.ts";
-import { languageFrom } from "./i18n.ts";
+import { createLife, liveCount, stepLife } from "./ascii.ts";
+import { languageFrom, textFor } from "./i18n.ts";
 import { quoteAt } from "./quotes.ts";
 import { retryDelayMs } from "./report.ts";
 
@@ -36,7 +36,22 @@ test("retry waits double the previous delay and stops at 30 seconds", () => {
   assert.equal(retryDelayMs(9), 30_000);
 });
 
-test("the ASCII field shifts with the hour and repeats every 10 steps", () => {
-  assert.notEqual(asciiField(12, 6, 0), asciiField(12, 6, 1));
-  assert.equal(asciiField(12, 6, 0), asciiField(12, 6, 10));
+test("NOW stays NOW in both languages", () => {
+  assert.equal(textFor("en").now, "NOW");
+  assert.equal(textFor("ru").now, "NOW");
+});
+
+test("life changes a blinker and is seeded by the hour", () => {
+  const cols = 5;
+  const cells = new Uint8Array(cols * 5);
+  cells[1 * cols + 2] = 1;
+  cells[2 * cols + 2] = 1;
+  cells[3 * cols + 2] = 1;
+  const next = stepLife(cells, cols, 5);
+  assert.equal(next[2 * cols + 1] > 0, true);
+  assert.equal(next[2 * cols + 2] > 0, true);
+  assert.equal(next[2 * cols + 3] > 0, true);
+  assert.equal(next[1 * cols + 2], 0);
+  assert.notEqual(liveCount(createLife(20, 12, 1)), 0);
+  assert.notDeepEqual(createLife(20, 12, 1), createLife(20, 12, 2));
 });

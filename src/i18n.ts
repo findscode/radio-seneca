@@ -37,7 +37,7 @@ const copy: Record<Lang, Copy> = {
     vol: "ЗВУК",
     mute: "ТИХО",
     recent: "> НЕДАВНИЕ",
-    now: "СЕЙЧАС",
+    now: "NOW",
     day: "24Ч",
     unavailable: "Эфир недоступен",
     reconnecting: "Переподключение…",

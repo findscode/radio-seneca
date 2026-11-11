@@ -53,7 +53,7 @@ export function App() {
       </aside>
 
       <main className="stage">
-        <AsciiField shift={hour} />
+        <AsciiField seed={hour} />
         <div className="stage-body">
           <header className="top">
             <p className="live">
@@ -186,7 +186,13 @@ function CoverArt({ art }: { art: string | null }) {
       </p>
     );
   }
-  return <img className="cover-image" src={art} alt="" onError={failed.fail} />;
+  return (
+    <div className="cover-art" aria-hidden="true">
+      <img className="cover-blur" src={art} alt="" onError={failed.fail} />
+      <div className="cover-shade" />
+      <img className="cover-plate" src={art} alt="" />
+    </div>
+  );
 }
 
 function Thumb({ art }: { art: string | null }) {
