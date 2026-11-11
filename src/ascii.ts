@@ -1,4 +1,4 @@
-export const GLYPHS = [".", "+", "/", "x"] as const;
+export const GLYPHS = ["x", "+", "o", "~"] as const;
 
 const DRIFT: ReadonlyArray<readonly [number, number]> = [
   [1, 0],

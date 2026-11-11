@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createField, GLYPHS, stepField } from "./ascii";
 
-const SHADES = ["#242424", "#2a2a2a", "#303030", "#363636"];
+const SHADES = ["#181818", "#1a1a1a", "#1c1c1c", "#1e1e1e"];
 const TICK_MS = 650;
 
 export function AsciiField() {
