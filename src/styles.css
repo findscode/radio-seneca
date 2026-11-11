@@ -129,6 +129,18 @@ ol {
   letter-spacing: 0.08em;
 }
 
+.lang button {
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.lang button.is-on {
+  color: var(--text);
+}
+
 .lang-mobile {
   display: none;
 }
@@ -209,11 +221,20 @@ ol {
   text-transform: uppercase;
 }
 
-.artist {
+.artist,
+.status {
   margin-top: 16px;
-  font-size: 28px;
   color: var(--muted);
   text-transform: uppercase;
+}
+
+.artist {
+  font-size: 28px;
+}
+
+.status {
+  font-size: 16px;
+  letter-spacing: 0.08em;
 }
 
 .controls {
@@ -442,6 +463,11 @@ ol {
   .artist {
     margin-top: 8px;
     font-size: 18px;
+  }
+
+  .status {
+    margin-top: 8px;
+    font-size: 12px;
   }
 
   .controls {

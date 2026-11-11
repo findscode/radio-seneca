@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { asciiField } from "./ascii";
 
-export function AsciiField() {
+export function AsciiField({ shift }: { shift: number }) {
   const ref = useRef<HTMLPreElement>(null);
   const [pattern, setPattern] = useState("");
 
@@ -21,7 +21,7 @@ export function AsciiField() {
       const charWidth = context.measureText("0").width || fontSize * 0.6;
       const cols = Math.ceil(stage.clientWidth / charWidth) + 2;
       const rows = Math.ceil(stage.clientHeight / lineHeight) + 2;
-      setPattern(asciiField(cols, rows));
+      setPattern(asciiField(cols, rows, shift));
     };
 
     measure();
@@ -29,7 +29,7 @@ export function AsciiField() {
     const observer = new ResizeObserver(measure);
     observer.observe(stage);
     return () => observer.disconnect();
-  }, []);
+  }, [shift]);
 
   return (
     <pre ref={ref} className="ascii" aria-hidden="true">

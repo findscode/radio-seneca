@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { reportClientEvent, retryDelayMs } from "./report";
 
 const VOLUME_KEY = "seneca.volume";
 const MUTE_KEY = "seneca.muted";
@@ -20,7 +21,13 @@ function readMuted(): boolean {
 
 export function usePlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const wantsAudio = useRef(false);
+  const attempt = useRef(0);
+  const timer = useRef(0);
+  const failRef = useRef<(detail: string) => void>(() => undefined);
   const [playing, setPlaying] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [offline, setOffline] = useState(false);
   const [volume, setVolume] = useState(readVolume);
   const [muted, setMuted] = useState(readMuted);
 
@@ -35,25 +42,79 @@ export function usePlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const sync = () => setPlaying(!audio.paused);
-    audio.addEventListener("play", sync);
-    audio.addEventListener("pause", sync);
-    audio.addEventListener("error", sync);
+    const clearTimer = () => {
+      if (timer.current === 0) return;
+      window.clearTimeout(timer.current);
+      timer.current = 0;
+    };
+
+    const schedule = () => {
+      if (!wantsAudio.current || timer.current !== 0) return;
+      const delay = retryDelayMs(attempt.current);
+      attempt.current += 1;
+      reportClientEvent("reconnect", `retry in ${delay}ms`);
+      timer.current = window.setTimeout(() => {
+        timer.current = 0;
+        const node = audioRef.current;
+        if (!node || !wantsAudio.current || streamUrl === "") return;
+        node.src = streamUrl;
+        node.load();
+        void node.play().catch(() => failRef.current("play failed"));
+      }, delay);
+    };
+
+    const fail = (detail: string) => {
+      setPlaying(false);
+      if (!wantsAudio.current || timer.current !== 0) return;
+      setOffline(true);
+      reportClientEvent("error", detail);
+      schedule();
+    };
+
+    failRef.current = fail;
+
+    const onPlay = () => {
+      setPlaying(true);
+      setOffline(false);
+      attempt.current = 0;
+      clearTimer();
+    };
+    const onPause = () => setPlaying(false);
+    const onError = () => fail("stream failed");
+
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("error", onError);
     return () => {
-      audio.removeEventListener("play", sync);
-      audio.removeEventListener("pause", sync);
-      audio.removeEventListener("error", sync);
+      clearTimer();
+      failRef.current = () => undefined;
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("error", onError);
     };
   }, []);
+
+  function stop() {
+    wantsAudio.current = false;
+    if (timer.current !== 0) {
+      window.clearTimeout(timer.current);
+      timer.current = 0;
+    }
+    setListening(false);
+    setOffline(false);
+    audioRef.current?.pause();
+  }
 
   function togglePlay() {
     const audio = audioRef.current;
     if (!audio || streamUrl === "") return;
-    if (!audio.paused) {
-      audio.pause();
+    if (wantsAudio.current) {
+      stop();
       return;
     }
-    void audio.play().catch(() => setPlaying(false));
+    wantsAudio.current = true;
+    setListening(true);
+    void audio.play().catch(() => failRef.current("play failed"));
   }
 
   function changeVolume(next: number) {
@@ -71,6 +132,8 @@ export function usePlayer() {
   return {
     audioRef,
     playing,
+    listening,
+    offline,
     volume,
     muted,
     togglePlay,
