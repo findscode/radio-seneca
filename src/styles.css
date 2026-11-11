@@ -206,6 +206,11 @@ ol {
   margin-top: 36px;
 }
 
+.play,
+.mute {
+  cursor: pointer;
+}
+
 .play {
   width: 88px;
   height: 88px;
@@ -227,17 +232,42 @@ ol {
   letter-spacing: 0.08em;
 }
 
-.vol-track {
+.volume input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
   flex: 1;
+  min-width: 0;
   height: 2px;
-  background: var(--track);
+  margin: 0;
+  border: 0;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--vol),
+    var(--track) var(--vol)
+  );
+  cursor: pointer;
 }
 
-.vol-fill {
-  display: block;
-  width: 57%;
-  height: 2px;
+.volume input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
   background: var(--accent);
+  border: 0;
+}
+
+.volume input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border: 0;
+  border-radius: 0;
+}
+
+.volume input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: transparent;
+  border: 0;
 }
 
 .mute {
@@ -247,6 +277,20 @@ ol {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
+}
+
+.mute.is-on {
+  color: var(--accent);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.stream {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .rule {

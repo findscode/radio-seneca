@@ -6,10 +6,13 @@ import {
   nowPlaying,
   quote,
 } from "./fixture";
+import { streamUrl, usePlayer } from "./usePlayer";
 
 const pattern = asciiField();
 
 export function App() {
+  const player = usePlayer();
+
   return (
     <div className="screen">
       <aside className="cover">
@@ -50,19 +53,44 @@ export function App() {
           <p className="artist">{nowPlaying.artist}</p>
 
           <div className="controls">
-            <button type="button" className="play" aria-disabled="true">
-              PLAY
+            <button
+              type="button"
+              className="play"
+              aria-pressed={player.playing}
+              onClick={player.togglePlay}
+            >
+              {player.playing ? "PAUSE" : "PLAY"}
             </button>
-            <div className="volume">
+            <label className="volume">
               <span className="vol-label">VOL</span>
-              <span className="vol-track" aria-hidden="true">
-                <span className="vol-fill" />
-              </span>
-            </div>
-            <button type="button" className="mute" aria-disabled="true">
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={player.volume}
+                aria-label="Volume"
+                style={{ ["--vol" as string]: `${player.volume * 100}%` }}
+                onChange={(event) =>
+                  player.changeVolume(Number(event.target.value))
+                }
+              />
+            </label>
+            <button
+              type="button"
+              className={player.muted ? "mute is-on" : "mute"}
+              aria-pressed={player.muted}
+              onClick={player.toggleMute}
+            >
               MUTE
             </button>
           </div>
+          <audio
+            ref={player.audioRef}
+            className="stream"
+            preload="none"
+            src={streamUrl || undefined}
+          />
 
           <hr className="rule" />
 
