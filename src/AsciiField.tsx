@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react";
-import { createLife, liveCount, stepLife } from "./ascii";
+import { createField, GLYPHS, stepField } from "./ascii";
 
-const SHADES = ["#1a1a1a", "#1e1e1e", "#222222", "#262626", "#2a2a2a", "#2e2e2e"];
-const GLYPHS = [".", "+", "/", "."];
-const TICK_MS = 700;
+const SHADES = ["#242424", "#2a2a2a", "#303030", "#363636"];
+const TICK_MS = 650;
 
-export function AsciiField({ seed }: { seed: number }) {
+export function AsciiField() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -38,44 +37,20 @@ export function AsciiField({ seed }: { seed: number }) {
       if (nextCols !== cols || nextRows !== rows || cells.length === 0) {
         cols = nextCols;
         rows = nextRows;
-        cells = createLife(cols, rows, seed);
+        cells = createField(cols, rows, Math.random);
       }
       for (let y = 0; y < rows; y += 1) {
         for (let x = 0; x < cols; x += 1) {
-          const age = cells[y * cols + x];
-          if (age === 0) continue;
-          context.fillStyle = SHADES[Math.min(SHADES.length - 1, age - 1)];
-          context.fillText(
-            GLYPHS[age % GLYPHS.length],
-            x * charWidth,
-            y * lineHeight + fontSize,
-          );
+          const species = cells[y * cols + x];
+          if (species === 0) continue;
+          context.fillStyle = SHADES[species - 1];
+          context.fillText(GLYPHS[species - 1], x * charWidth, y * lineHeight + fontSize);
         }
       }
     };
 
-    let generation = 0;
     const tick = () => {
-      generation += 1;
-      const next = stepLife(cells, cols, rows);
-      let same = true;
-      for (let i = 0; i < next.length; i += 1) {
-        if (next[i] !== cells[i]) {
-          same = false;
-          break;
-        }
-      }
-      if (same) {
-        const index = (seed + generation * 17) % next.length;
-        next[index] = 1;
-        if (index + 1 < next.length) next[index + 1] = 1;
-        if (index + cols < next.length) next[index + cols] = 1;
-      }
-      const count = liveCount(next);
-      cells =
-        count < Math.max(8, Math.floor((cols * rows) / 25))
-          ? createLife(cols, rows, seed + generation)
-          : next;
+      cells = stepField(cells, cols, rows, Math.random);
       draw();
     };
 
@@ -88,7 +63,7 @@ export function AsciiField({ seed }: { seed: number }) {
       observer.disconnect();
       window.clearInterval(timer);
     };
-  }, [seed]);
+  }, []);
 
   return <canvas ref={ref} className="ascii" aria-hidden="true" />;
 }

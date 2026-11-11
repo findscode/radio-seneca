@@ -49,11 +49,11 @@ export function App() {
           />
         </div>
         <CoverArt art={broadcast.current.art} />
-        <p className="quote">{quoteAt(new Date(), lang)}</p>
+        <p className="quote">{quoteAt(new Date(Date.UTC(2026, 5, 1, hour, 30)), lang)}</p>
       </aside>
 
       <main className="stage">
-        <AsciiField seed={hour} />
+        <AsciiField />
         <div className="stage-body">
           <header className="top">
             <p className="live">

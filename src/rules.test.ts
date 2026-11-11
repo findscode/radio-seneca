@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createLife, liveCount, stepLife } from "./ascii.ts";
+import { createField, speciesCounts, stepField } from "./ascii.ts";
 import { languageFrom, textFor } from "./i18n.ts";
 import { quoteAt } from "./quotes.ts";
 import { retryDelayMs } from "./report.ts";
@@ -41,17 +41,35 @@ test("NOW stays NOW in both languages", () => {
   assert.equal(textFor("ru").now, "NOW");
 });
 
-test("life changes a blinker and is seeded by the hour", () => {
-  const cols = 5;
-  const cells = new Uint8Array(cols * 5);
-  cells[1 * cols + 2] = 1;
-  cells[2 * cols + 2] = 1;
-  cells[3 * cols + 2] = 1;
-  const next = stepLife(cells, cols, 5);
-  assert.equal(next[2 * cols + 1] > 0, true);
-  assert.equal(next[2 * cols + 2] > 0, true);
-  assert.equal(next[2 * cols + 3] > 0, true);
-  assert.equal(next[1 * cols + 2], 0);
-  assert.notEqual(liveCount(createLife(20, 12, 1)), 0);
-  assert.notDeepEqual(createLife(20, 12, 1), createLife(20, 12, 2));
+function randomFrom(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+test("the field starts at random and keeps four symbols in motion", () => {
+  const cols = 36;
+  const rows = 18;
+  const first = createField(cols, rows, randomFrom(1));
+  const second = createField(cols, rows, randomFrom(2));
+  assert.notDeepEqual(first, second);
+
+  let field = first;
+  let moved = false;
+  for (let step = 0; step < 16; step += 1) {
+    const next = stepField(field, cols, rows, randomFrom(100 + step));
+    for (let i = 0; i < next.length; i += 1) {
+      if (next[i] !== field[i]) moved = true;
+    }
+    field = next;
+    const counts = speciesCounts(field);
+    const live = counts[1] + counts[2] + counts[3] + counts[4];
+    const largest = Math.max(counts[1], counts[2], counts[3], counts[4]);
+    assert.ok(counts[1] > 0 && counts[2] > 0 && counts[3] > 0 && counts[4] > 0);
+    assert.ok(largest <= live * 0.45);
+    assert.ok(live <= Math.floor(cols * rows * 0.28));
+  }
+  assert.equal(moved, true);
 });
