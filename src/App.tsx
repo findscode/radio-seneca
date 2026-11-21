@@ -39,7 +39,6 @@ export function App() {
       <aside className="cover">
         <div className="cover-top">
           <div className="brand-block">
-            <span className="tick" aria-hidden="true" />
             <p className="logo">SENECA</p>
           </div>
           <LanguageSwitch

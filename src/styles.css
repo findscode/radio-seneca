@@ -83,6 +83,7 @@ ol {
   place-items: center;
   overflow: hidden;
   background: var(--cover);
+  container-type: size;
 }
 
 .cover-blur {
@@ -103,7 +104,7 @@ ol {
 .cover-plate {
   position: relative;
   z-index: 1;
-  width: min(34%, 210px);
+  width: min(34cqw, 210px, 42cqh);
   aspect-ratio: 1;
   object-fit: cover;
   box-shadow: 0 16px 40px rgb(0 0 0 / 45%);
@@ -113,14 +114,6 @@ ol {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-}
-
-.tick {
-  display: block;
-  width: 72px;
-  height: 4px;
-  margin-bottom: 16px;
-  background: var(--accent);
 }
 
 .logo {
@@ -423,6 +416,10 @@ ol {
   .screen {
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .cover,
@@ -432,10 +429,46 @@ ol {
   }
 
   .cover {
-    min-height: 480px;
+    flex: 0 0 auto;
+    height: clamp(168px, 40vh, 400px);
+    height: clamp(168px, 40dvh, 400px);
+    min-height: 0;
     padding: 20px;
     border-right: 0;
     border-bottom: 2px solid var(--accent);
+  }
+
+  .stage {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stage-body {
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .stage-body > * {
+    flex-shrink: 0;
+  }
+
+  .stage-body > .recent {
+    flex: 0 1 auto;
+    min-height: 0;
+    padding-bottom: 28px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+  }
+
+  .volume {
+    display: none;
+  }
+
+  .controls {
+    justify-content: space-between;
   }
 
   .logo {
@@ -464,7 +497,7 @@ ol {
 
   .stage-body {
     min-height: 0;
-    padding: 20px 20px 32px;
+    padding: 20px 20px 4px;
   }
 
   .live {
