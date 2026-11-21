@@ -23,6 +23,22 @@
 - Основной адрес AzuraCast — `https://radio.seneca.by`.
 - Поток и WebSocket работают по HTTPS и WSS.
 
+### Приоритет звука
+
+На Droplet с 1 vCPU фоновые задачи AzuraCast отнимают процессор у Liquidsoap. Тогда Liquidsoap пишет в лог `Latency is too high: we must catchup`, и в потоке слышен треск.
+
+Файл `/etc/cron.d/seneca-audio-priority` раз в минуту ставит всем потокам Liquidsoap и Icecast приоритет `-10`:
+
+```
+* * * * * root for p in $(pgrep -x liquidsoap) $(pgrep -x icecast); do for t in /proc/$p/task/*; do renice -n -10 -p "${t##*/}" >/dev/null 2>&1; done; done
+```
+
+`nice` в Linux действует на отдельный поток, поэтому команда обходит все потоки процесса.
+
+### После переноса медиа
+
+Если файлы переместили или переименовали, перезапустите вещание: `azuracast_cli azuracast:radio:restart seneca` или Restart Broadcasting в панели. Без перезапуска Liquidsoap продолжает искать старые пути и тратит процессор на ошибки `Nonexistent file`.
+
 ## Переменные сборки
 
 - Адрес радиосервера (для `nowplaying` и WebSocket).
