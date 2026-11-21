@@ -57,10 +57,15 @@ export function App() {
         <AsciiField />
         <div className="stage-body">
           <header className="top">
-            <p className="live">
-              {text.live}
-              <span className="dot" aria-hidden="true" />
-            </p>
+            <div className="top-main">
+              <p className="live">
+                {text.live}
+                <span className="dot" aria-hidden="true" />
+              </p>
+              {broadcast.playlist && (
+                <p className="playlist">&gt; {broadcast.playlist}</p>
+              )}
+            </div>
             <div className="top-side">
               <LanguageSwitch
                 className="lang lang-desktop"

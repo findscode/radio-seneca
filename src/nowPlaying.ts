@@ -7,6 +7,7 @@ export type TrackView = {
 
 export type Broadcast = {
   current: TrackView;
+  playlist: string | null;
   history: TrackView[];
   listenersNow: number;
   listeners24h: number | null;
@@ -25,6 +26,7 @@ export type NowPlayingPayload = {
   };
   now_playing?: {
     song?: Song;
+    playlist?: string;
   };
   song_history?: Array<{
     sh_id?: number;
@@ -54,6 +56,7 @@ export function toBroadcast(payload: NowPlayingPayload): Broadcast {
 
   return {
     current: trackFromSong(currentSong, currentSong?.id ?? "now"),
+    playlist: payload.now_playing?.playlist?.trim() || null,
     history,
     listenersNow: payload.listeners?.current ?? 0,
     listeners24h: null,

@@ -30,6 +30,7 @@ export const fixtureBroadcast: Broadcast = {
     artist: nowPlaying.artist,
     art: null,
   },
+  playlist: null,
   history: history.map((track, index) => ({
     id: `fixture-${index}`,
     title: track.title,

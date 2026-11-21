@@ -5,6 +5,7 @@ import { payloadFromSocketMessage, toBroadcast } from "./nowPlaying.ts";
 const persuasion = {
   listeners: { current: 3 },
   now_playing: {
+    playlist: " Dj Finds: Classic Jungle ",
     song: {
       id: "now-1",
       title: "Persuasion",
@@ -26,6 +27,8 @@ test("maps the current track, history, and listener count", () => {
   assert.equal(broadcast.history[0]?.art, null);
   assert.equal(broadcast.listenersNow, 3);
   assert.equal(broadcast.listeners24h, null);
+  assert.equal(broadcast.playlist, "Dj Finds: Classic Jungle");
+  assert.equal(toBroadcast({ now_playing: { playlist: "  " } }).playlist, null);
 });
 
 test("a later payload replaces the track without keeping the old one", () => {

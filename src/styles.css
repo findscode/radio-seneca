@@ -208,6 +208,21 @@ ol {
   color: var(--accent);
 }
 
+.top-main {
+  min-width: 0;
+}
+
+.playlist {
+  margin-top: 12px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .dot {
   width: 8px;
   height: 8px;
@@ -502,6 +517,11 @@ ol {
 
   .live {
     font-size: 12px;
+  }
+
+  .playlist {
+    margin-top: 8px;
+    font-size: 11px;
   }
 
   .stats {
