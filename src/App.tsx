@@ -31,6 +31,10 @@ export function App() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   function chooseLanguage(next: Lang) {
     storeLanguage(next);
     setLang(next);
@@ -46,6 +50,7 @@ export function App() {
           <LanguageSwitch
             className="lang lang-mobile"
             lang={lang}
+            label={text.language}
             onChange={chooseLanguage}
           />
         </div>
@@ -63,13 +68,17 @@ export function App() {
                 <span className="dot" aria-hidden="true" />
               </p>
               {broadcast.playlist && (
-                <p className="playlist">&gt; {broadcast.playlist}</p>
+                <p className="playlist">
+                  <span aria-hidden="true">&gt; </span>
+                  {broadcast.playlist}
+                </p>
               )}
             </div>
             <div className="top-side">
               <LanguageSwitch
                 className="lang lang-desktop"
                 lang={lang}
+                label={text.language}
                 onChange={chooseLanguage}
               />
               <p className="stats">
@@ -90,12 +99,14 @@ export function App() {
           <p className={player.offline ? "status" : "artist"}>
             {player.offline ? text.reconnecting : broadcast.current.artist}
           </p>
+          <p className="sr-only" role="status">
+            {player.offline ? `${text.unavailable}. ${text.reconnecting}` : ""}
+          </p>
 
           <div className="controls">
             <button
               type="button"
               className="play"
-              aria-pressed={player.listening}
               onClick={player.togglePlay}
             >
               {player.listening ? text.pause : text.play}
@@ -128,8 +139,11 @@ export function App() {
 
           <hr className="rule" />
 
-          <section className="recent" aria-label={text.recent}>
-            <h2>{text.recent}</h2>
+          <section className="recent" aria-labelledby="recent-title">
+            <h2 id="recent-title">
+              <span aria-hidden="true">&gt; </span>
+              {text.recent}
+            </h2>
             <ol>
               {broadcast.history.map((track) => (
                 <li key={track.id}>
@@ -149,18 +163,21 @@ export function App() {
 function LanguageSwitch({
   className,
   lang,
+  label,
   onChange,
 }: {
   className: string;
   lang: Lang;
+  label: string;
   onChange: (lang: Lang) => void;
 }) {
   return (
-    <p className={className}>
+    <div className={className} role="group" aria-label={label}>
       <button
         type="button"
         className={lang === "ru" ? "is-on" : ""}
         aria-pressed={lang === "ru"}
+        lang="ru"
         onClick={() => onChange("ru")}
       >
         RU
@@ -170,11 +187,12 @@ function LanguageSwitch({
         type="button"
         className={lang === "en" ? "is-on" : ""}
         aria-pressed={lang === "en"}
+        lang="en"
         onClick={() => onChange("en")}
       >
         EN
       </button>
-    </p>
+    </div>
   );
 }
 

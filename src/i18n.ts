@@ -14,6 +14,7 @@ export type Copy = {
   unavailable: string;
   reconnecting: string;
   volume: string;
+  language: string;
 };
 
 const copy: Record<Lang, Copy> = {
@@ -23,12 +24,13 @@ const copy: Record<Lang, Copy> = {
     pause: "PAUSE",
     vol: "VOL",
     mute: "MUTE",
-    recent: "> RECENT",
+    recent: "RECENT",
     now: "NOW",
     day: "24H",
     unavailable: "Broadcast unavailable",
     reconnecting: "Reconnecting…",
     volume: "Volume",
+    language: "Language",
   },
   ru: {
     live: "ЭФИР",
@@ -36,12 +38,13 @@ const copy: Record<Lang, Copy> = {
     pause: "ПАУЗА",
     vol: "ЗВУК",
     mute: "ТИХО",
-    recent: "> НЕДАВНИЕ",
+    recent: "НЕДАВНИЕ",
     now: "NOW",
     day: "24Ч",
     unavailable: "Эфир недоступен",
     reconnecting: "Переподключение…",
     volume: "Громкость",
+    language: "Язык",
   },
 };
 
