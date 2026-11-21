@@ -3,7 +3,8 @@ import { AsciiField } from "./AsciiField";
 import { readLanguage, storeLanguage, textFor, type Lang } from "./i18n";
 import { quoteAt, utcHour } from "./quotes";
 import { useBroadcast } from "./useBroadcast";
-import { streamUrl, usePlayer } from "./usePlayer";
+import { useMediaSession } from "./useMediaSession";
+import { usePlayer } from "./usePlayer";
 
 export function App() {
   const player = usePlayer();
@@ -11,6 +12,7 @@ export function App() {
   const [lang, setLang] = useState<Lang>(readLanguage);
   const [hour, setHour] = useState(() => utcHour(new Date()));
   const text = textFor(lang);
+  useMediaSession(broadcast.current, player.listening, player.play, player.pause);
 
   useEffect(() => {
     let timer = 0;
@@ -117,12 +119,7 @@ export function App() {
               {text.mute}
             </button>
           </div>
-          <audio
-            ref={player.audioRef}
-            className="stream"
-            preload="none"
-            src={streamUrl || undefined}
-          />
+          <audio ref={player.audioRef} className="stream" preload="none" />
 
           <hr className="rule" />
 
